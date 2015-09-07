@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Phaser Introduction</title>
+
+		<meta name="description" content="Desktop and Mobile HTML5 game framework">
+		<meta name="author" content="Sylvain Hamann">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+		<script type="text/javascript" src="js/phaser.min.js"></script>
+		<style>
+		.my-game canvas {
+          margin: 0 auto;
+        }
+		</style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+				<h2>My first game with</h2>
+					<p>
+						<img src="./img/phaser.png" alt="Phaser">
+					</p>
+					<p style="text-align: right;">by <a href="http://shamann.fr" target="_blank">Sylvain Hamann</a></p>
+				</section>
+
+				<section>
+					<h2>What will compose my game?</h2>
+					<ul class="fragment" data-fragment-index="1">
+					  <li>Device (desktop, mobile...)</li>
+					  <li>Assets (images, sprites, audio…)</li>
+					  <li>Inputs (click, keyboard, touch…)</li>
+					  <li>2D environment which handles collisions (my character, enemies, walls…)</li>
+					  <li>More? (menus, scoring system, camera…)</li>
+					</ul>
+				</section>
+				
+				<section>
+					<h2>Why Phaser?</h2>
+					<ul>
+					  <li>Desktop and Mobile HTML5 game framework</li>
+					  <li>A fast, free and fun open source framework supporting both JavaScript and TypeScript</li>
+					  <li>Strong community</li>
+					</ul>
+				</section>
+				
+				<section>							
+					<section>
+						<h2>Let's start</h2>
+						<pre><code>var game = new Phaser.Game(520, 340, Phaser.AUTO, 'my-game', { preload: preload, create: create, update: update });
+
+function preload() {    
+}
+
+function create() {	     
+}
+	 
+function update() {   
+}						</code></pre>
+					</section>							
+					
+					<section>
+						<h2>My first sprite</h2>
+						<p><img src="./img/mario.png" alt="Mario sprite"></p>
+						<pre><code>function preload() {    
+  game.load.image('bg', 'assets/bg.png');
+  game.load.image('ground', 'assets/ground.png');
+  game.load.image('star', 'assets/star.png');
+  game.load.spritesheet('mario', 'assets/mario.png', 16, 20); 
+}
+
+function create() {	     
+  game.add.sprite(0, 0, 'star');
+}</code></pre>
+					</section>
+					
+					<section>
+						<p><img src="./img/example1.jpg" alt="Game example"></p>
+					</section>
+										
+					<section>
+						<h2>World creation</h2>
+						<pre><code>function create() {	
+  game.physics.startSystem(Phaser.Physics.ARCADE);
+  game.add.sprite(0, 0, 'bg');
+  platforms = game.add.group();
+  platforms.enableBody = true;
+  for (i = 0; i < game.width/16; i++) { 
+    var ground = platforms.create(i*16, game.world.height-15, 'ground');
+    ground.body.immovable = true;
+  }               
+}</code></pre>
+					</section>
+					
+					<section>
+						<p><img src="./img/example2.jpg" alt="Game example"></p>
+					</section>
+					
+					<section>
+						<h2>Add the player</h2>
+						<pre><code>function create() {	
+  player = game.add.sprite(game.world.width/2, game.world.height/2, 'mario');  
+  game.physics.arcade.enable(player);
+  player.body.gravity.y = 300;
+  player.body.collideWorldBounds = true;
+  player.animations.add('left', [0, 1], 10, true);
+  player.animations.add('right', [3,4], 10, true);
+  stars = game.add.group();
+  stars.enableBody = true;     
+  var rand = Math.floor(Math.random() * (game.width-30));
+  var star = stars.create(rand, game.height/2, 'star');
+  star.body.gravity.y = 300;
+  star.body.bounce.y = 0.5; 	     
+  scoreText = game.add.text(16, 16, 'Score: '+score, { fontSize: '32px', fill: '#000' });
+}</code></pre>
+					</section>
+					
+					<section>
+					  <p><img src="./img/example3.gif" alt="Game example"></p>		
+					</section>
+					
+					<section>
+						<p>Well, there is something wrong...</p>
+						<p><img src="./img/gif1.gif" alt="whoops"></p>
+					</section>
+					
+					<section>
+						<h2>We need physics!</h2>
+						<pre><code>function update() {
+  game.physics.arcade.collide(player, platforms);
+  game.physics.arcade.collide(stars, platforms);     	
+}</code></pre>
+					</section>
+					
+					<section>
+					  <p><img src="./img/example4.gif" alt="Game example"></p>
+					</section>
+					
+					<section>
+						<h2>Inputs and movements</h2>
+						<pre><code>//create()
+player.animations.add('left', [0, 1], 10, true);
+player.animations.add('right', [3,4], 10, true);
+[...]
+cursors = game.input.keyboard.createCursorKeys();
+
+//update()
+player.body.velocity.x = 0;  
+if (cursors.left.isDown) {
+    player.body.velocity.x = -150;  
+    player.animations.play('left');
+}else if (cursors.right.isDown) {
+    player.body.velocity.x = 150;
+    player.animations.play('right');
+}else {
+    player.animations.stop();
+    player.frame = 2;
+}
+if (cursors.up.isDown && player.body.touching.down) {
+    player.body.velocity.y = -150;
+}</code></pre>
+					</section>							
+					
+					<section>
+						<h2>Collecting stars</h2>
+						<pre><code>//create()
+game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+//outside of create()
+function collectStar (player, star) {
+  star.kill(); 
+  score += 10;
+  scoreText.text = 'Score: ' + score;      
+  createStar();
+}</code></pre>
+					</section>
+					
+					<section>
+					  <div id="my-game" class="my-game"> </div>
+					  <p style="text-align: right; font-size:12px;">Use WAD to move.</p>
+					  <script type="text/javascript">
+						(function(){var game = new Phaser.Game(520, 340, Phaser.AUTO, 'my-game', { preload: preload, create: create, update: update });
+						var player;
+						var platforms;
+						var cursors;
+						var wasd;
+						var stars;
+						var score = 0;
+						var scoreText;
+					 
+						function preload() {
+						  game.load.image('bg', 'assets/bg.png');
+						  game.load.image('ground', 'assets/ground.png');
+						  game.load.image('star', 'assets/star.png');
+						  game.load.spritesheet('mario', 'assets/mario.png', 16, 20);        
+						}
+						 
+						function create() {	
+						  game.physics.startSystem(Phaser.Physics.ARCADE);
+						  game.add.sprite(0, 0, 'bg');
+						  platforms = game.add.group();
+						  platforms.enableBody = true;
+						  for (i = 0; i < game.width/16; i++) { 
+							var ground = platforms.create(i*16, game.world.height - 15, 'ground');
+							ground.body.immovable = true;
+						  }    
+						  
+						  player = game.add.sprite(game.world.width/2, game.world.height/2, 'mario');  
+						  game.physics.arcade.enable(player);
+						  player.body.gravity.y = 300;
+						  player.body.collideWorldBounds = true;
+						  player.animations.add('left', [0, 1], 10, true);
+						  player.animations.add('right', [3,4], 10, true);
+						  
+						  stars = game.add.group();
+						  stars.enableBody = true;     
+						  createStar();
+								
+						  cursors = game.input.keyboard.createCursorKeys();
+						  
+						  wasd = {
+							up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+							down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+							left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+							right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+						  };
+						  
+						  scoreText = game.add.text(16, 16, 'Score: '+score, { fontSize: '32px', fill: '#000' });
+						}
+						 
+						function update() {
+						  game.physics.arcade.collide(player, platforms);
+						  game.physics.arcade.collide(stars, platforms);     	
+						  game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+						  player.body.velocity.x = 0;  
+						  if (wasd.left.isDown) {
+							  player.body.velocity.x = -150;  
+							  player.animations.play('left');
+						  }else if (wasd.right.isDown) {
+							  player.body.velocity.x = 150;
+							  player.animations.play('right');
+						  }else {
+							  player.animations.stop();
+							  player.frame = 2;
+						  }
+						  if (wasd.up.isDown && player.body.touching.down) {
+							  player.body.velocity.y = -150;
+						  }
+						}
+						
+						function createStar() {
+						  var rand = Math.floor(Math.random() * (game.width-30));
+						  var star = stars.create(rand, game.height/2, 'star');
+						  star.body.gravity.y = 300;
+						  star.body.bounce.y = 0.5;
+						}
+						
+						function collectStar (player, star) {
+						  star.kill(); 
+						  score += 10;
+						  scoreText.text = 'Score: ' + score;      
+						  createStar();
+						}})()
+					  </script>
+					</section>
+					
+				</section>
+
+				<section data-background="./img/gif2.gif">
+					<h2>Easy right!?</h2>
+				</section>				
+
+				<section>
+					<h2>Useful links</h2>
+					<ul>
+						<li><a href="http://phaser.io/" target="_blank">phaser.io</a>: official website, documentation, examples, news…</li>
+						<li><a href="https://www.discoverphaser.com/" target="_blank">Discover Phaser</a>: step-by-step guide to Phaser</li>
+						<li><a href="http://www.html5gamedevs.com/" target="_blank">HTML5 Game Devs Forum</a></li>
+						<li><a href="https://www.youtube.com/watch?v=6rQROhVeIQE" target="_blank">Let’s make a game with Phaser</a>: video introduction</li>
+					</ul>
+				</section>
+				
+				<section data-background="./img/ironmaiden.png" data-transition="zoom">
+					<h2>Examples</h2>
+					<ul>
+						<li><a href="http://shamann.fr/onigirirun" target="_blank">Onigiri Run</a>: my first game</li>
+						<li><a href="http://phasernode.herokuapp.com/" target="_blank">Node.js demo</a>: turn your phone into a controller!</li>
+						<li><a href="http://speedoflight.ironmaiden.com/" target="_blank">Iron Maiden game</a></li>
+					</ul>
+				</section>
+				
+				<section style="text-align: left;">
+					<h1>Merci</h1>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+	</body>
+</html>

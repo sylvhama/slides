@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="initial-scale=1 maximum-scale=1 user-scalable=0 minimal-ui" />
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="HandheldFriendly" content="true" />
+		<title>Phaser Introduction</title>
+		<meta name="description" content="Phaser Introduction by Sylvaim Hamann">
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        
+        #my-game canvas {
+          margin: 100px auto;
+        }
+    </style>
+	</head>
+
+	<body>
+		<div id="my-game"> </div>
+
+  <script type="text/javascript">
+    var game = new Phaser.Game(520, 340, Phaser.AUTO, 'my-game', { preload: preload, create: create, update: update });
+    var player;
+    var platforms;
+    var cursors;
+    var stars;
+    var score = 0;
+    var scoreText;
+ 
+    function preload() {
+      game.load.image('bg', 'assets/bg.png');
+      game.load.image('ground', 'assets/ground.png');
+      game.load.image('star', 'assets/star.png');
+      game.load.spritesheet('mario', 'assets/mario.png', 16, 20);        
+    }
+     
+    function create() {	
+      game.physics.startSystem(Phaser.Physics.ARCADE);
+      game.add.sprite(0, 0, 'bg');
+      platforms = game.add.group();
+      platforms.enableBody = true;
+      for (i = 0; i < game.width/16; i++) { 
+        var ground = platforms.create(i*16, game.world.height - 15, 'ground');
+        ground.body.immovable = true;
+      }    
+      
+      player = game.add.sprite(game.world.width/2, game.world.height/2, 'mario');  
+      game.physics.arcade.enable(player);
+      player.body.gravity.y = 300;
+      player.body.collideWorldBounds = true;
+      
+      stars = game.add.group();
+      stars.enableBody = true;     
+      var rand = Math.floor(Math.random() * (game.width-30));
+      var star = stars.create(rand, game.height/2, 'star');
+      star.body.gravity.y = 300;
+      star.body.bounce.y = 0.5;
+      
+      scoreText = game.add.text(16, 16, 'Score: '+score, { fontSize: '32px', fill: '#000' });
+    }
+     
+    function update() {
+      game.physics.arcade.collide(player, platforms);
+      game.physics.arcade.collide(stars, platforms);     	
+    }
+  </script>
+
+</body>
+</html>

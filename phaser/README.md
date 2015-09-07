@@ -1,1 +1,1 @@
-Introduction to Phaser
+Introduction to Phaser http://shamann.fr/slides/phaser/
